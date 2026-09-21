@@ -20,17 +20,33 @@ paths:
       summary: Get Orders
       tags:
         - store
+      parameters:
+        - name: page
+          in: query
+          description: 1-indexed page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: Page size, capped server-side
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
+                $ref: '#/components/schemas/OrderPage'
+        '400':
+          description: Bad Request — page < 1 or size outside 1-100
       operationId: getOrders
-      description: Get all orders
+      description: Get all orders, paginated
     post:
       summary: Create Order
       tags:
@@ -45,28 +61,52 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - description
+                - customer
               properties:
-                id:
-                  type: integer
-                  format: int64
-                descriptioon:
+                description:
                   type: string
+                customer:
+                  type: object
+                  required:
+                    - id
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
   /customer:
     get:
       summary: Get Customers
       tags:
         - store
+      parameters:
+        - name: page
+          in: query
+          description: 1-indexed page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: Page size, capped server-side
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/CustomerPage'
+        '400':
+          description: Bad Request — page < 1 or size outside 1-100
       operationId: getCustomers
-      description: Get all customers
+      description: Get all customers, paginated
     post:
       summary: Create Customer
       tags:
@@ -81,10 +121,9 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
               properties:
-                id:
-                  type: integer
-                  format: int64
                 name:
                   type: string
   /products:
@@ -135,6 +174,40 @@ paths:
                     id: jbh0jzkonppv8
 components:
   schemas:
+    OrderPage:
+      title: OrderPage
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    CustomerPage:
+      title: CustomerPage
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
     Order:
       title: Order
       type: object

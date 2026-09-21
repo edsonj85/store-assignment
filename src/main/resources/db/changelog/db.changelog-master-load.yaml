@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/db.changelog-1.yaml
   - include:
       file: db/changelog/db.changelog-2-load.yaml
+  - include:
+      file: db/changelog/db.changelog-3-index.yaml
+  - include:
+      file: db/changelog/db.changelog-4-sequence-sync.yaml

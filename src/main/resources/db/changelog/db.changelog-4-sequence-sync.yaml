@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4-sync-identity-sequences
+      author: developer@securitease.com
+      changes:
+        - sql:
+            sql: "SELECT setval('customer_id_seq', (SELECT COALESCE(MAX(id), 1) FROM customer));"
+        - sql:
+            sql: "SELECT setval('order_id_seq', (SELECT COALESCE(MAX(id), 1) FROM \"order\"));"
+      rollback:
+        - sql:
+            sql: "SELECT 1;" # no meaningful rollback for a forward sequence sync

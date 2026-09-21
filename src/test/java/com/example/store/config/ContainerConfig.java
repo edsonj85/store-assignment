@@ -8,8 +8,11 @@ import org.testcontainers.utility.DockerImageName;
 
 /**
  * Shared Postgres container for integration tests. Imported (rather than declared per test
- * class) so Spring's test context cache keys on the same configuration and reuses one running
- * container across the whole suite instead of starting one per test class.
+ * class) so Spring's test context cache can reuse one running container across test classes,
+ * instead of starting a new one per class. This only applies to classes that end up with an
+ * identical context configuration (same profile, same test annotations, etc) — a class that
+ * adds something like {@code @AutoConfigureMockMvc} gets its own cache entry and its own
+ * container, even though it imports this same config.
  */
 @TestConfiguration(proxyBeanMethods = false)
 public class ContainerConfig {

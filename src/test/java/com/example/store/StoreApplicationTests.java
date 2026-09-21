@@ -14,13 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Boots the full application context against a real Postgres container (see {@link
- * ContainerConfig}), proving the Liquibase changelog applies cleanly to it rather than relying on
- * a divergent in-memory database. The "load" profile (see {@code application-load.yaml}, also used
- * to load-test the app via {@code bootRun}) points Liquibase at the realistic generated dataset
- * ({@code data-load.sql}, ~135k rows) instead of the small dataset the default changelog seeds for
- * everyday {@code bootRun} use — later integration tests (query-count assertions, index
- * verification) need the realistic volume to be meaningful. Expect this test to be slow (minutes,
- * not seconds) as a result.
+ * ContainerConfig}) to prove the Liquibase changelog actually applies cleanly to it, rather than
+ * trusting an in-memory database that could silently diverge. Uses the "load" profile so the
+ * container ends up seeded with a realistic amount of data — startup takes a few minutes as a
+ * result.
  */
 @SpringBootTest
 @Import(ContainerConfig.class)

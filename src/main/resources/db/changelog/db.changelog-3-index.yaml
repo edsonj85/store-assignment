@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3-index-order-customer-id
+      author: developer@securitease.com
+      changes:
+        - createIndex:
+            indexName: idx_order_customer_id
+            tableName: order
+            columns:
+              - column:
+                  name: customer_id
+      rollback:
+        - dropIndex:
+            indexName: idx_order_customer_id
+            tableName: order
