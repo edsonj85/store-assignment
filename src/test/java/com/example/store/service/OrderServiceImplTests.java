@@ -5,12 +5,16 @@ import com.example.store.dto.OrderCreateDTO;
 import com.example.store.dto.OrderCustomerDTO;
 import com.example.store.dto.OrderDTO;
 import com.example.store.dto.PageResponse;
+import com.example.store.dto.ProductReferenceDTO;
 import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
+import com.example.store.entity.Product;
+import com.example.store.exception.InvalidOrderException;
 import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.mapper.OrderMapper;
 import com.example.store.repository.CustomerRepository;
 import com.example.store.repository.OrderRepository;
+import com.example.store.repository.ProductRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,9 +27,11 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,11 +46,14 @@ class OrderServiceImplTests {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private ProductRepository productRepository;
+
     private OrderServiceImpl orderService;
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderServiceImpl(orderRepository, orderMapper, customerRepository);
+        orderService = new OrderServiceImpl(orderRepository, orderMapper, customerRepository, productRepository);
     }
 
     @Test
@@ -113,17 +122,25 @@ class OrderServiceImplTests {
     }
 
     @Test
-    void createOrderLooksUpCustomerMapsSavesAndReturnsDTO() {
+    void createOrderLooksUpCustomerAndProductsMapsSavesAndReturnsDTO() {
         CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
         customerReference.setId(1L);
+
+        ProductReferenceDTO productReference = new ProductReferenceDTO();
+        productReference.setId(5L);
 
         OrderCreateDTO request = new OrderCreateDTO();
         request.setDescription("New Order");
         request.setCustomer(customerReference);
+        request.setProducts(List.of(productReference));
 
         Customer customer = new Customer();
         customer.setId(1L);
         customer.setName("Takudzwa Jengwa");
+
+        Product product = new Product();
+        product.setId(5L);
+        product.setDescription("Widget");
 
         Order mapped = new Order();
         mapped.setDescription("New Order");
@@ -138,6 +155,7 @@ class OrderServiceImplTests {
         orderDTO.setDescription("New Order");
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+        when(productRepository.findAllById(Set.of(5L))).thenReturn(List.of(product));
         when(orderMapper.orderCreateDTOToOrder(request)).thenReturn(mapped);
         when(orderRepository.save(mapped)).thenReturn(saved);
         when(orderMapper.orderToOrderDTO(saved)).thenReturn(orderDTO);
@@ -146,6 +164,7 @@ class OrderServiceImplTests {
 
         assertThat(result).isEqualTo(orderDTO);
         assertThat(mapped.getCustomer()).isEqualTo(customer);
+        assertThat(mapped.getProducts()).containsExactly(product);
     }
 
     @Test
@@ -153,11 +172,64 @@ class OrderServiceImplTests {
         CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
         customerReference.setId(999L);
 
+        ProductReferenceDTO productReference = new ProductReferenceDTO();
+        productReference.setId(5L);
+
+        OrderCreateDTO request = new OrderCreateDTO();
+        request.setDescription("New Order");
+        request.setCustomer(customerReference);
+        request.setProducts(List.of(productReference));
+
+        when(customerRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> orderService.createOrder(request)).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void createOrderThrowsWhenProductsMissing() {
+        CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
+        customerReference.setId(1L);
+
         OrderCreateDTO request = new OrderCreateDTO();
         request.setDescription("New Order");
         request.setCustomer(customerReference);
 
-        when(customerRepository.findById(999L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> orderService.createOrder(request)).isInstanceOf(InvalidOrderException.class);
+    }
+
+    @Test
+    void createOrderThrowsWhenProductsEmpty() {
+        CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
+        customerReference.setId(1L);
+
+        OrderCreateDTO request = new OrderCreateDTO();
+        request.setDescription("New Order");
+        request.setCustomer(customerReference);
+        request.setProducts(List.of());
+
+        assertThatThrownBy(() -> orderService.createOrder(request)).isInstanceOf(InvalidOrderException.class);
+    }
+
+    @Test
+    void createOrderThrowsWhenAProductDoesNotExist() {
+        CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
+        customerReference.setId(1L);
+
+        ProductReferenceDTO productReference = new ProductReferenceDTO();
+        productReference.setId(999L);
+
+        OrderCreateDTO request = new OrderCreateDTO();
+        request.setDescription("New Order");
+        request.setCustomer(customerReference);
+        request.setProducts(List.of(productReference));
+
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setName("Takudzwa Jengwa");
+
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+        when(orderMapper.orderCreateDTOToOrder(request)).thenReturn(new Order());
+        when(productRepository.findAllById(anyCollection())).thenReturn(List.of());
 
         assertThatThrownBy(() -> orderService.createOrder(request)).isInstanceOf(ResourceNotFoundException.class);
     }

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 
 import lombok.Data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Data
 @Table(name = "\"order\"")
@@ -16,4 +19,11 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "order_product",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
+    private Set<Product> products = new HashSet<>();
 }

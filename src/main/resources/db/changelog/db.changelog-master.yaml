@@ -11,3 +11,7 @@ databaseChangeLog:
       file: db/changelog/db.changelog-5-pg-trgm.yaml
   - include:
       file: db/changelog/db.changelog-6-customer-name-trgm-index.yaml
+  - include:
+      file: db/changelog/db.changelog-7-product.yaml
+  - include:
+      file: db/changelog/db.changelog-8-order-product.yaml

@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 8-create-order-product-table
+      author: developer@securitease.com
+      # ON DELETE RESTRICT on both FKs: neither "order" nor "product" has a DELETE
+      # endpoint today, so nothing should silently disappear out from under this
+      # join table. RESTRICT forces a future DELETE feature to decide explicitly
+      # what happens to historic order/product associations rather than cascading
+      # or leaving a default (NO ACTION) that isn't stated anywhere.
+      changes:
+        - createTable:
+            tableName: order_product
+            columns:
+              - column:
+                  name: order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: order_product
+            columnNames: order_id, product_id
+            constraintName: pk_order_product
+        - addForeignKeyConstraint:
+            baseTableName: order_product
+            baseColumnNames: order_id
+            referencedTableName: order
+            referencedColumnNames: id
+            constraintName: fk_order_product_order
+            onDelete: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: order_product
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_order_product_product
+            onDelete: RESTRICT
+        - createIndex:
+            indexName: idx_order_product_product_id
+            tableName: order_product
+            columns:
+              - column:
+                  name: product_id
+      rollback:
+        - dropTable:
+            tableName: order_product

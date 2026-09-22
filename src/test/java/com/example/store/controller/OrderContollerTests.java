@@ -4,7 +4,10 @@ import com.example.store.dto.CustomerReferenceDTO;
 import com.example.store.dto.OrderCreateDTO;
 import com.example.store.dto.OrderCustomerDTO;
 import com.example.store.dto.OrderDTO;
+import com.example.store.dto.OrderProductDTO;
 import com.example.store.dto.PageResponse;
+import com.example.store.dto.ProductReferenceDTO;
+import com.example.store.exception.InvalidOrderException;
 import com.example.store.exception.ResourceNotFoundException;
 import com.example.store.service.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,18 +49,27 @@ class OrderControllerTests {
         CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
         customerReference.setId(1L);
 
+        ProductReferenceDTO productReference = new ProductReferenceDTO();
+        productReference.setId(1L);
+
         createRequest = new OrderCreateDTO();
         createRequest.setDescription("Test Order");
         createRequest.setCustomer(customerReference);
+        createRequest.setProducts(List.of(productReference));
 
         OrderCustomerDTO orderCustomerDTO = new OrderCustomerDTO();
         orderCustomerDTO.setId(1L);
         orderCustomerDTO.setName("Takudzwa Jengwa");
 
+        OrderProductDTO orderProductDTO = new OrderProductDTO();
+        orderProductDTO.setId(1L);
+        orderProductDTO.setDescription("Widget");
+
         orderDTO = new OrderDTO();
         orderDTO.setId(1L);
         orderDTO.setDescription("Test Order");
         orderDTO.setCustomer(orderCustomerDTO);
+        orderDTO.setProducts(List.of(orderProductDTO));
     }
 
     @Test
@@ -69,7 +81,8 @@ class OrderControllerTests {
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.description").value("Test Order"))
-                .andExpect(jsonPath("$.customer.name").value("Takudzwa Jengwa"));
+                .andExpect(jsonPath("$.customer.name").value("Takudzwa Jengwa"))
+                .andExpect(jsonPath("$.products[0].description").value("Widget"));
     }
 
     @Test
@@ -80,6 +93,19 @@ class OrderControllerTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testCreateOrderNoProductsReturns400() throws Exception {
+        createRequest.setProducts(List.of());
+        when(orderService.createOrder(createRequest))
+                .thenThrow(new InvalidOrderException("Order must contain at least one product"));
+
+        mockMvc.perform(post("/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Order must contain at least one product"));
     }
 
     @Test
@@ -100,7 +126,8 @@ class OrderControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value("Test Order"))
                 .andExpect(jsonPath("$.customer.id").value(1))
-                .andExpect(jsonPath("$.customer.name").value("Takudzwa Jengwa"));
+                .andExpect(jsonPath("$.customer.name").value("Takudzwa Jengwa"))
+                .andExpect(jsonPath("$.products[0].description").value("Widget"));
     }
 
     @Test
