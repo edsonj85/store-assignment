@@ -4,6 +4,7 @@ import com.example.store.dto.CustomerCreateDTO;
 import com.example.store.dto.CustomerDTO;
 import com.example.store.dto.PageResponse;
 import com.example.store.entity.Customer;
+import com.example.store.exception.InvalidSearchQueryException;
 import com.example.store.mapper.CustomerMapper;
 import com.example.store.repository.CustomerRepository;
 
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,13 +43,13 @@ class CustomerServiceImplTests {
     void getAllCustomersReturnsPagedEnvelope() {
         Customer customer = new Customer();
         customer.setId(1L);
-        customer.setName("John Doe");
+        customer.setName("Takudzwa Jengwa");
 
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(1L);
-        customerDTO.setName("John Doe");
+        customerDTO.setName("Takudzwa Jengwa");
 
-        // page=1 (1-indexed, first page) translates to Pageable offset 0
+        // page=1 -> Pageable offset 0
         Pageable pageable = PageRequest.of(0, 20);
         PageImpl<Customer> customerPage = new PageImpl<>(List.of(customer), pageable, 42);
 
@@ -64,20 +66,73 @@ class CustomerServiceImplTests {
     }
 
     @Test
+    void searchCustomersReturnsPagedEnvelope() {
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setName("Johan van Zyl");
+
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setId(1L);
+        customerDTO.setName("Johan van Zyl");
+
+        Pageable pageable = PageRequest.of(0, 20);
+        PageImpl<Customer> customerPage = new PageImpl<>(List.of(customer), pageable, 1);
+
+        when(customerRepository.searchByName(List.of("van", "zyl"), pageable)).thenReturn(customerPage);
+        when(customerMapper.customersToCustomerDTOs(List.of(customer))).thenReturn(List.of(customerDTO));
+
+        PageResponse<CustomerDTO> result = customerService.searchCustomers("van zyl", 1, 20);
+
+        assertThat(result.getContent()).containsExactly(customerDTO);
+        assertThat(result.getTotalElements()).isEqualTo(1);
+    }
+
+    @Test
+    void searchCustomersTrimsAndCollapsesWhitespaceBetweenTerms() {
+        Pageable pageable = PageRequest.of(0, 20);
+        PageImpl<Customer> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
+        when(customerRepository.searchByName(List.of("van", "zyl"), pageable)).thenReturn(emptyPage);
+        when(customerMapper.customersToCustomerDTOs(List.of())).thenReturn(List.of());
+
+        customerService.searchCustomers("  van   zyl  ", 1, 20);
+    }
+
+    @Test
+    void searchCustomersThrowsWhenAWordIsShorterThanMinLength() {
+        assertThatThrownBy(() -> customerService.searchCustomers("va zyl", 1, 20))
+                .isInstanceOf(InvalidSearchQueryException.class);
+    }
+
+    @Test
+    void searchCustomersThrowsWhenBlank() {
+        assertThatThrownBy(() -> customerService.searchCustomers("   ", 1, 20))
+                .isInstanceOf(InvalidSearchQueryException.class);
+    }
+
+    @Test
+    void searchCustomersThrowsWhenQueryExceedsMaxLength() {
+        String tooLong = "a".repeat(101);
+
+        assertThatThrownBy(() -> customerService.searchCustomers(tooLong, 1, 20))
+                .isInstanceOf(InvalidSearchQueryException.class);
+    }
+
+    @Test
     void createCustomerMapsSavesAndReturnsDTO() {
         CustomerCreateDTO request = new CustomerCreateDTO();
-        request.setName("Jane Doe");
+        request.setName("Rutendo Moyo");
 
         Customer mapped = new Customer();
-        mapped.setName("Jane Doe");
+        mapped.setName("Rutendo Moyo");
 
         Customer saved = new Customer();
         saved.setId(2L);
-        saved.setName("Jane Doe");
+        saved.setName("Rutendo Moyo");
 
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(2L);
-        customerDTO.setName("Jane Doe");
+        customerDTO.setName("Rutendo Moyo");
 
         when(customerMapper.customerCreateDTOToCustomer(request)).thenReturn(mapped);
         when(customerRepository.save(mapped)).thenReturn(saved);

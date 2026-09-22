@@ -5,12 +5,7 @@ import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 
-/**
- * Counts the JDBC statements Hibernate prepares while running a block of code, so N+1 regressions
- * can be asserted on directly instead of eyeballed from SQL logs. Enables statistics collection at
- * runtime on the underlying {@link Statistics}, so the count is accurate regardless of whether
- * {@code hibernate.generate_statistics} is set for the active profile.
- */
+// Counts JDBC statements Hibernate issues while running a block of code.
 public class QueryCountHarness {
 
     private final Statistics statistics;

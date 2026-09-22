@@ -75,6 +75,32 @@ paths:
                     id:
                       type: integer
                       format: int64
+  /order/{id}:
+    get:
+      summary: Get Order By Id
+      tags:
+        - store
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Not Found — no order exists with the given ID
+        '400':
+          description: Bad Request — id is not a valid integer
+      operationId: getOrderById
+      description: Get a single order by ID, including its customer
   /customer:
     get:
       summary: Get Customers

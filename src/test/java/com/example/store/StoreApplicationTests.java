@@ -12,13 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Boots the full application context against a real Postgres container (see {@link
- * ContainerConfig}) to prove the Liquibase changelog actually applies cleanly to it, rather than
- * trusting an in-memory database that could silently diverge. Uses the "load" profile so the
- * container ends up seeded with a realistic amount of data — startup takes a few minutes as a
- * result.
- */
+// Confirms Liquibase applies cleanly against real Postgres, not an in-memory stand-in.
 @SpringBootTest
 @Import(ContainerConfig.class)
 @ActiveProfiles("load")

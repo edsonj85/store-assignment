@@ -30,6 +30,11 @@ public class OrderController {
         return orderService.getAllOrders(page, size);
     }
 
+    @GetMapping("/{id}")
+    public OrderDTO getOrderById(@PathVariable Long id) {
+        return orderService.getOrderById(id);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDTO createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {

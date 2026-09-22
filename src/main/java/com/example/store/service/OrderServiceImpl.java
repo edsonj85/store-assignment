@@ -36,6 +36,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public OrderDTO getOrderById(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        return orderMapper.orderToOrderDTO(order);
+    }
+
+    @Override
     @Transactional
     public OrderDTO createOrder(OrderCreateDTO orderCreateDTO) {
         Long customerId = orderCreateDTO.getCustomer().getId();

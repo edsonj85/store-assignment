@@ -52,7 +52,7 @@ class OrderControllerTests {
 
         OrderCustomerDTO orderCustomerDTO = new OrderCustomerDTO();
         orderCustomerDTO.setId(1L);
-        orderCustomerDTO.setName("John Doe");
+        orderCustomerDTO.setName("Takudzwa Jengwa");
 
         orderDTO = new OrderDTO();
         orderDTO.setId(1L);
@@ -69,7 +69,7 @@ class OrderControllerTests {
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.description").value("Test Order"))
-                .andExpect(jsonPath("$.customer.name").value("John Doe"));
+                .andExpect(jsonPath("$.customer.name").value("Takudzwa Jengwa"));
     }
 
     @Test
@@ -93,15 +93,41 @@ class OrderControllerTests {
     }
 
     @Test
+    void testGetOrderByIdFound() throws Exception {
+        when(orderService.getOrderById(1L)).thenReturn(orderDTO);
+
+        mockMvc.perform(get("/order/{id}", 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value("Test Order"))
+                .andExpect(jsonPath("$.customer.id").value(1))
+                .andExpect(jsonPath("$.customer.name").value("Takudzwa Jengwa"));
+    }
+
+    @Test
+    void testGetOrderByIdNotFound() throws Exception {
+        when(orderService.getOrderById(999L)).thenThrow(new ResourceNotFoundException("Order", 999L));
+
+        mockMvc.perform(get("/order/{id}", 999))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value("Order 999 not found"));
+    }
+
+    @Test
+    void testGetOrderByIdNonNumericReturns400() throws Exception {
+        mockMvc.perform(get("/order/{id}", "abc")).andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testGetOrderUsesDefaultPageAndSize() throws Exception {
-        // page=1 (1-indexed, first page) is Spring Pageable's zero-indexed page 0
+        // page=1 -> Pageable offset 0
         PageResponse<OrderDTO> page = PageResponse.of(List.of(orderDTO), zeroIndexedPageOf(0, 20, 1));
         when(orderService.getAllOrders(1, 20)).thenReturn(page);
 
         mockMvc.perform(get("/order"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].description").value("Test Order"))
-                .andExpect(jsonPath("$.content[0].customer.name").value("John Doe"))
+                .andExpect(jsonPath("$.content[0].customer.name").value("Takudzwa Jengwa"))
                 .andExpect(jsonPath("$.page").value(1))
                 .andExpect(jsonPath("$.size").value(20))
                 .andExpect(jsonPath("$.totalElements").value(1));

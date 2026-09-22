@@ -18,17 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Regression test for the N+1 on GET /customer. Runs against the "load" profile's realistic
- * dataset so the batch-fetch round trips actually show up — on a handful of rows they'd be too
- * small to notice.
- *
- * The 3-statement ceiling (not 2) is the real floor for a paginated, accurately-counted list
- * endpoint: the content query, a separate COUNT query for totalElements/totalPages, and one
- * batch-fetch for the lazy "orders" collection across the page (a single batch as long as the
- * page holds no more distinct customers than the batch-fetch size, which holds for any page size
- * up to the enforced 100 max). That's constant regardless of dataset size or page size.
- */
+// N+1 regression test, run against the "load" profile so batch-fetch round trips actually show up.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Import(ContainerConfig.class)
@@ -57,5 +47,16 @@ class QueryCountTests {
                 .as("GET /customer should issue a constant number of statements regardless of"
                         + " how many customers/orders exist, not one batch per page of customers")
                 .isLessThanOrEqualTo(3);
+    }
+
+    @Test
+    void getOrderByIdIssuesExactlyOneStatement() throws Exception {
+        long statementCount = queryCountHarness.countStatements(
+                () -> mockMvc.perform(get("/order/{id}", 1)).andExpect(status().isOk()));
+
+        assertThat(statementCount)
+                .as("GET /order/{id} should fetch-join the customer via the entity graph, not lazily"
+                        + " load it in a second statement")
+                .isEqualTo(1);
     }
 }

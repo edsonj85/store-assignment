@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5-enable-pg-trgm
+      author: developer@securitease.com
+      # admin is POSTGRES_USER -> superuser, so this needs no extra grant here;
+      # a real deployment would still want this as a DBA bootstrap step.
+      changes:
+        - sql:
+            sql: "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+      rollback:
+        - sql:
+            sql: "DROP EXTENSION IF EXISTS pg_trgm;"

@@ -8,5 +8,7 @@ public interface OrderService {
 
     PageResponse<OrderDTO> getAllOrders(int page, int size);
 
+    OrderDTO getOrderById(Long id);
+
     OrderDTO createOrder(OrderCreateDTO orderCreateDTO);
 }

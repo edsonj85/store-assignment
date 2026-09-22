@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6-index-customer-name-trgm
+      author: developer@securitease.com
+      runInTransaction: false
+      # raw SQL: createIndex can't express gin_trgm_ops or CONCURRENTLY.
+      # CONCURRENTLY avoids locking customer during the build; needs runInTransaction: false
+      # since Postgres won't run it inside a transaction block. A failed build leaves an
+      # INVALID index - drop it and re-run.
+      changes:
+        - sql:
+            sql: "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_customer_name_trgm ON customer USING gin (name gin_trgm_ops);"
+      rollback:
+        - sql:
+            sql: "DROP INDEX CONCURRENTLY IF EXISTS idx_customer_name_trgm;"

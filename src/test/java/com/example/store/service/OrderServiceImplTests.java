@@ -51,7 +51,7 @@ class OrderServiceImplTests {
     void getAllOrdersReturnsPagedEnvelope() {
         Customer customer = new Customer();
         customer.setId(1L);
-        customer.setName("John Doe");
+        customer.setName("Takudzwa Jengwa");
 
         Order order = new Order();
         order.setId(1L);
@@ -60,15 +60,14 @@ class OrderServiceImplTests {
 
         OrderCustomerDTO orderCustomerDTO = new OrderCustomerDTO();
         orderCustomerDTO.setId(1L);
-        orderCustomerDTO.setName("John Doe");
+        orderCustomerDTO.setName("Takudzwa Jengwa");
 
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(1L);
         orderDTO.setDescription("Test Order");
         orderDTO.setCustomer(orderCustomerDTO);
 
-        // page=2 (1-indexed, last page of a 21-item, size-20 result set) translates to
-        // Pageable offset 1: offset 20, 1 item remaining
+        // page=2 -> Pageable offset 1
         Pageable pageable = PageRequest.of(1, 20);
         PageImpl<Order> orderPage = new PageImpl<>(List.of(order), pageable, 21);
 
@@ -84,6 +83,36 @@ class OrderServiceImplTests {
     }
 
     @Test
+    void getOrderByIdReturnsDTO() {
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setName("Takudzwa Jengwa");
+
+        Order order = new Order();
+        order.setId(1L);
+        order.setDescription("Test Order");
+        order.setCustomer(customer);
+
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(1L);
+        orderDTO.setDescription("Test Order");
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderMapper.orderToOrderDTO(order)).thenReturn(orderDTO);
+
+        OrderDTO result = orderService.getOrderById(1L);
+
+        assertThat(result).isEqualTo(orderDTO);
+    }
+
+    @Test
+    void getOrderByIdThrowsWhenNotFound() {
+        when(orderRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> orderService.getOrderById(999L)).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void createOrderLooksUpCustomerMapsSavesAndReturnsDTO() {
         CustomerReferenceDTO customerReference = new CustomerReferenceDTO();
         customerReference.setId(1L);
@@ -94,7 +123,7 @@ class OrderServiceImplTests {
 
         Customer customer = new Customer();
         customer.setId(1L);
-        customer.setName("John Doe");
+        customer.setName("Takudzwa Jengwa");
 
         Order mapped = new Order();
         mapped.setDescription("New Order");

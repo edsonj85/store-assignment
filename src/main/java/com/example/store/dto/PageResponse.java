@@ -15,7 +15,7 @@ public class PageResponse<T> {
     private long totalElements;
     private int totalPages;
 
-    /** source is a zero-indexed Spring Data Page; the response's page number is 1-indexed. */
+    // source is 0-indexed (Spring Data), page here is 1-indexed
     public static <T> PageResponse<T> of(List<T> content, Page<?> source) {
         PageResponse<T> response = new PageResponse<>();
         response.setContent(content);

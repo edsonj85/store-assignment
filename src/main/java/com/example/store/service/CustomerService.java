@@ -8,5 +8,7 @@ public interface CustomerService {
 
     PageResponse<CustomerDTO> getAllCustomers(int page, int size);
 
+    PageResponse<CustomerDTO> searchCustomers(String name, int page, int size);
+
     CustomerDTO createCustomer(CustomerCreateDTO customerCreateDTO);
 }

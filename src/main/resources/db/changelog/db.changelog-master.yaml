@@ -7,3 +7,7 @@ databaseChangeLog:
       file: db/changelog/db.changelog-3-index.yaml
   - include:
       file: db/changelog/db.changelog-4-sequence-sync.yaml
+  - include:
+      file: db/changelog/db.changelog-5-pg-trgm.yaml
+  - include:
+      file: db/changelog/db.changelog-6-customer-name-trgm-index.yaml

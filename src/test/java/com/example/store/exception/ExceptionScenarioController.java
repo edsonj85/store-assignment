@@ -13,12 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Not wired into the real API - a fixture controller that deliberately triggers each exception
- * GlobalExceptionHandler needs to cover, so the advice can be tested through real Spring MVC
- * request handling ahead of the endpoints (order lookup, customer search) that will hit these
- * paths naturally later on.
- */
+// Fixture controller (not part of the real API) exercising each exception GlobalExceptionHandler covers.
 @RestController
 @RequestMapping("/test-exceptions")
 @Validated

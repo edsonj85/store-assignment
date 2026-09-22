@@ -25,9 +25,13 @@ public class CustomerController {
 
     @GetMapping
     public PageResponse<CustomerDTO> getAllCustomers(
+            @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
-        return customerService.getAllCustomers(page, size);
+        if (name == null || name.isBlank()) {
+            return customerService.getAllCustomers(page, size);
+        }
+        return customerService.searchCustomers(name, page, size);
     }
 
     @PostMapping
