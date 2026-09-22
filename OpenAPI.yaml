@@ -107,6 +107,18 @@ paths:
       tags:
         - store
       parameters:
+        - name: name
+          in: query
+          description: >-
+            Case-insensitive substring search on customer name, matching
+            anywhere within a word (e.g. "erw" matches "Merwe"). Multiple
+            whitespace-separated words are ANDed together, each matched
+            independently. Must be at most 100 characters overall, and each
+            individual word must be at least 3 characters. Omitted or blank
+            falls back to the unfiltered paginated list below.
+          schema:
+            type: string
+            maxLength: 100
         - name: page
           in: query
           description: 1-indexed page number
@@ -130,9 +142,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/CustomerPage'
         '400':
-          description: Bad Request — page < 1 or size outside 1-100
+          description: >-
+            Bad Request — page < 1, size outside 1-100, name longer than 100
+            characters, or (when name is non-blank) name or any individual
+            word within it shorter than 3 characters
       operationId: getCustomers
-      description: Get all customers, paginated
+      description: >-
+        Get customers, paginated. Pass name to search by name instead of
+        listing all customers.
     post:
       summary: Create Customer
       tags:
