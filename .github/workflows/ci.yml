@@ -40,10 +40,28 @@ jobs:
       - name: Unit tests
         run: ./gradlew test
 
+      # data-load.sql isn't committed (see utils/README.md) - the integration
+      # tests need it for the "load" profile, so generate it fresh here.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: utils/package-lock.json
+
+      - name: Generate load-test data
+        working-directory: utils
+        run: |
+          npm ci
+          node generateData.js > ../src/main/resources/db/changelog/data-load.sql
+
       # ubuntu-latest ships Docker preinstalled and running, which is all
       # Testcontainers needs - no extra runner setup required.
       - name: Integration tests
         run: ./gradlew integrationTest
+
+      - name: Remove generated load-test data
+        if: always()
+        run: rm -f src/main/resources/db/changelog/data-load.sql
 
       - name: Coverage report
         run: ./gradlew jacocoTestReport
