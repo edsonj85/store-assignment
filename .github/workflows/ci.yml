@@ -116,7 +116,7 @@ jobs:
       # db.changelog-master.yaml currently chains 8 changesets (product/order-product
       # were the last ones added) - bump this if a new one lands.
       - name: Roll back every changeset
-        run: ./gradlew rollbackCount -PliquibaseCount=8
+        run: ./gradlew rollbackCount -PliquibaseCommandValue=8
 
       - name: Confirm rollback actually left an empty schema
         env:
