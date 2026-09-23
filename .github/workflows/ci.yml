@@ -141,7 +141,7 @@ jobs:
           PGPASSWORD: admin
         run: |
           tables=$(psql -h localhost -U admin -d store -tAc \
-            "select count(*) from information_schema.tables where table_schema = 'public' and table_name != 'databasechangeloglock'")
+            "select count(*) from information_schema.tables where table_schema = 'public' and table_name not like 'databasechangelog%'")
           echo "tables after rollback: $tables"
           test "$tables" -eq 0
 
