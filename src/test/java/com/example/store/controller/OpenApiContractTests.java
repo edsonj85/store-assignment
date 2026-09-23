@@ -11,6 +11,7 @@ import com.example.store.repository.CustomerRepository;
 import com.example.store.repository.OrderRepository;
 import com.example.store.repository.ProductRepository;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // and error shapes, so the spec can't silently drift from what the API
 // actually returns. Other controller tests assert behaviour; this asserts
 // the contract describing it.
+@Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Import(ContainerConfig.class)

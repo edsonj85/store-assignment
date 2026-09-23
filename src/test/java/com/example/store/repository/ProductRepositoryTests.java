@@ -5,6 +5,7 @@ import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
 import com.example.store.entity.Product;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 // Real Postgres via ContainerConfig - the query joins through order_product.
+@Tag("integration")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import(ContainerConfig.class)

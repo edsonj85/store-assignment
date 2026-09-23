@@ -1,0 +1,8 @@
+<FindBugsFilter>
+    <!-- Lombok-generated getters/setters return the field directly throughout
+         this codebase (DTOs, entities) - internal to a single service, not a
+         published library, so there's no untrusted caller to defend against. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

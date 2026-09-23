@@ -5,3 +5,6 @@ databaseChangeLog:
       changes:
         - sqlFile:
             path: db/changelog/schema.sql
+      rollback:
+        - sql:
+            sql: 'DROP TABLE "order"; DROP TABLE customer;'

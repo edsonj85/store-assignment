@@ -5,3 +5,6 @@ databaseChangeLog:
       changes:
         - sqlFile:
             path: db/changelog/data.sql
+      rollback:
+        - sql:
+            sql: 'DELETE FROM "order"; DELETE FROM customer;'

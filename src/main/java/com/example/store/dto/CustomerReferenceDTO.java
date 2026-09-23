@@ -7,6 +7,5 @@ import lombok.Data;
 @Data
 public class CustomerReferenceDTO {
 
-    @NotNull
-    private Long id;
+    @NotNull private Long id;
 }
