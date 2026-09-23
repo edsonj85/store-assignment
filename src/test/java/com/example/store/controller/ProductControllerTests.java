@@ -77,8 +77,8 @@ class ProductControllerTests {
 
     @Test
     void testCreateProductAllowsDuplicateDescription() throws Exception {
-        // Products have no business key beyond id (4.1/4.2) - a repeated
-        // description is not a conflict.
+        // Products have no business key beyond id - a repeated description
+        // is not a conflict.
         ProductDTO secondProductDTO = new ProductDTO();
         secondProductDTO.setId(2L);
         secondProductDTO.setDescription("Widget");

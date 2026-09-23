@@ -15,8 +15,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-// No natural business key (description isn't unique - see 4.5), so equals/hashCode
-// fall back to id, guarded against the null-before-persist case, rather than
+// No natural business key (description isn't unique), so equals/hashCode fall
+// back to id, guarded against the null-before-persist case, rather than
 // Lombok's @Data (which would include the mutable description and orders fields).
 @Entity
 @Getter

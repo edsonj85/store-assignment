@@ -45,6 +45,16 @@ paths:
                 $ref: '#/components/schemas/OrderPage'
         '400':
           description: Bad Request — page < 1 or size outside 1-100
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: getOrders
       description: Get all orders, paginated
     post:
@@ -54,12 +64,30 @@ paths:
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
         '400':
           description: >-
             Bad Request — description blank, customer or products missing, or
             zero products supplied
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
         '404':
           description: Not Found — customer or a referenced product does not exist
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: createOrder
       description: Create a new order with one or more products
       requestBody:
@@ -115,8 +143,22 @@ paths:
                 $ref: '#/components/schemas/Order'
         '404':
           description: Not Found — no order exists with the given ID
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
         '400':
           description: Bad Request — id is not a valid integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: getOrderById
       description: Get a single order by ID, including its customer and products
   /customer:
@@ -164,6 +206,16 @@ paths:
             Bad Request — page < 1, size outside 1-100, name longer than 100
             characters, or (when name is non-blank) name or any individual
             word within it shorter than 3 characters
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: getCustomers
       description: >-
         Get customers, paginated. Pass name to search by name instead of
@@ -175,6 +227,22 @@ paths:
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Bad Request — name blank
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: createCustomer
       description: Create a new customer
       requestBody:
@@ -217,6 +285,16 @@ paths:
                 $ref: '#/components/schemas/ProductPage'
         '400':
           description: Bad Request — page < 1 or size outside 1-100
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: getProducts
       description: Get all products, paginated, each with the IDs of orders containing it
     post:
@@ -232,6 +310,22 @@ paths:
               schema:
                 type: string
                 format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad Request — description blank
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: createProduct
       description: Create a new product
       requestBody:
@@ -266,8 +360,22 @@ paths:
                 $ref: '#/components/schemas/Product'
         '404':
           description: Not Found — no product exists with the given ID
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
         '400':
           description: Bad Request — id is not a valid integer
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal Server Error — unexpected failure
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       operationId: getProductById
       description: Get a single product by ID, including the IDs of orders containing it
 components:
@@ -383,8 +491,30 @@ components:
                 format: int64
               description:
                 type: string
-                x-stoplight:
-                  id: mq08x82g95zl9
+    ProblemDetail:
+      title: ProblemDetail
+      type: object
+      description: >-
+        RFC 7807 problem details, returned for every error response
+        (Content-Type: application/problem+json). Individual error cases add
+        further properties on top of these — e.g. resourceType/resourceId on
+        a 404, a field-level errors array on a request-body validation
+        failure, correlationId on a 500 — see each response's own description
+        for what to expect.
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+      additionalProperties: true
 tags:
   - name: store
     description: store operations

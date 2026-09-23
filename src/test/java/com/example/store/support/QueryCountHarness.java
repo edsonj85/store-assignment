@@ -11,8 +11,7 @@ public class QueryCountHarness {
     private final Statistics statistics;
 
     public QueryCountHarness(EntityManagerFactory entityManagerFactory) {
-        this.statistics =
-                entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
+        this.statistics = entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
         this.statistics.setStatisticsEnabled(true);
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 public interface CustomerMapper {
     CustomerDTO customerToCustomerDTO(Customer customer);
 
-    List<CustomerDTO> customersToCustomerDTOs(List<Customer> customer);
+    List<CustomerDTO> customersToCustomerDTOs(List<Customer> customers);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orders", ignore = true)

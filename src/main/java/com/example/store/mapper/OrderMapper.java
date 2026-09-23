@@ -17,7 +17,7 @@ public interface OrderMapper {
 
     List<OrderDTO> ordersToOrderDTOs(List<Order> orders);
 
-    OrderCustomerDTO orderToOrderCustomerDTO(Customer customer);
+    OrderCustomerDTO customerToOrderCustomerDTO(Customer customer);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "customer", ignore = true)

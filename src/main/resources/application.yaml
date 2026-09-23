@@ -24,3 +24,13 @@ server:
     enabled: true
     mime-types: application/json
     min-response-size: 1024
+management:
+  endpoints:
+    web:
+      exposure:
+        # Explicit allowlist, not "*" - no env/beans/heapdump/shutdown exposed.
+        include: health,info,metrics,prometheus
+logging:
+  pattern:
+    # Threads MDC correlationId (CorrelationIdFilter) into every log line.
+    correlation: '[%X{correlationId:-}] '

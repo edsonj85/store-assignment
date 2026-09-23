@@ -17,8 +17,8 @@ public class OrderCreateDTO {
     @NotNull @Valid
     private CustomerReferenceDTO customer;
 
-    // Emptiness/absence is checked in the service (A3), not here with
-    // @NotEmpty - "at least one product" is a business rule, not a shape check.
+    // Emptiness/absence is checked in the service, not here with @NotEmpty -
+    // "at least one product" is a business rule, not a shape check.
     @Valid
     private List<ProductReferenceDTO> products;
 }

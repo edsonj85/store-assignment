@@ -49,9 +49,8 @@ public class CustomerServiceImpl implements CustomerService {
         boolean hasTermBelowMinLength =
                 terms.isEmpty() || terms.stream().anyMatch(term -> term.length() < MIN_TERM_LENGTH);
         if (hasTermBelowMinLength) {
-            throw new InvalidSearchQueryException(
-                    "Search query must be at least " + MIN_TERM_LENGTH + " characters, and each word"
-                            + " within it at least " + MIN_TERM_LENGTH + " characters");
+            throw new InvalidSearchQueryException("Search query must be at least " + MIN_TERM_LENGTH
+                    + " characters, and each word" + " within it at least " + MIN_TERM_LENGTH + " characters");
         }
 
         Page<Customer> customerPage = customerRepository.searchByName(terms, PageRequest.of(page - 1, size));

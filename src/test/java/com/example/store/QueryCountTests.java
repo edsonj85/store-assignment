@@ -90,12 +90,12 @@ class QueryCountTests {
             productRepository.save(product);
         }
 
-        long statementCount = queryCountHarness.countStatements(() ->
-                mockMvc.perform(get("/products").param("size", "100")).andExpect(status().isOk()));
+        long statementCount = queryCountHarness.countStatements(
+                () -> mockMvc.perform(get("/products").param("size", "100")).andExpect(status().isOk()));
 
         assertThat(statementCount)
                 .as("GET /products should issue a constant number of statements regardless of page"
-                        + " size: content query + count query + 1 batched order-id lookup (4.4),"
+                        + " size: content query + count query + 1 batched order-id lookup,"
                         + " not one lookup per product")
                 .isLessThanOrEqualTo(3);
     }

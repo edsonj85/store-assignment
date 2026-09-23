@@ -1,9 +1,12 @@
 package com.example.store.exception;
 
+import com.example.store.web.CorrelationIdFilter;
+
 import jakarta.validation.ConstraintViolationException;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -19,7 +22,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Slf4j
 @RestControllerAdvice
@@ -65,8 +67,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex) {
-        String correlationId = UUID.randomUUID().toString();
-        log.error("Unhandled exception, correlationId={}", correlationId, ex);
+        String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
+        log.error("Unhandled exception", ex);
         ProblemDetail problem =
                 ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
         problem.setTitle("Internal server error");

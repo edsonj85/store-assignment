@@ -101,10 +101,10 @@ class CustomerSearchEndpointTests {
             saveCustomer("Zzq6matchezzq6" + i);
         }
 
-        long statementCount = queryCountHarness.countStatements(() -> mockMvc
-                .perform(get("/customer").param("name", "zzq6matchezzq6"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(5)));
+        long statementCount = queryCountHarness.countStatements(
+                () -> mockMvc.perform(get("/customer").param("name", "zzq6matchezzq6"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.content.length()").value(5)));
 
         assertThat(statementCount)
                 .as("search should issue a constant number of statements regardless of result size:"

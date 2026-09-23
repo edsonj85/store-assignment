@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Full stack against real Postgres - what mocked controller tests can't prove:
-// the create-then-retrieve round trip, and 4.4's order-id projection actually
+// the create-then-retrieve round trip, and the order-id projection actually
 // producing correct results through the real HTTP surface.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
